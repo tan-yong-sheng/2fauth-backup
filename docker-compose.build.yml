@@ -1,0 +1,58 @@
+services:
+  # 2FAuth Application
+  2fauth:
+    image: 2fauth/2fauth:latest
+    container_name: 2fauth
+    restart: unless-stopped
+    environment:
+      - APP_ENV=production
+      - APP_KEY=${APP_KEY:-SomeRandomStringOf32CharsExactly}
+      - APP_URL=${APP_URL:-http://localhost:8000}
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/2fauth/database.sqlite
+    volumes:
+      - 2fauth_app_data:/2fauth
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - 2fauth_network
+
+  # 2FAuth Backup Service
+  backup:
+    build:
+      context: ./backup
+      dockerfile: Dockerfile
+    container_name: 2fauth-backup
+    restart: unless-stopped
+    environment:
+      - APP_DATA_DIR=/2fauth
+      - DB_DATABASE=${DB_DATABASE:-/2fauth/database.sqlite}
+    env_file:
+      - ./backup/.env
+
+    volumes:
+      - 2fauth_app_data:/2fauth
+      - ./backup/rclone.conf:/config/rclone/rclone.conf:ro
+      - 2fauth_backups:/backups
+    depends_on:
+      2fauth:
+        condition: service_healthy
+    networks:
+      - 2fauth_network
+
+
+volumes:
+  2fauth_app_data:
+    name: 2fauth_app_data
+  2fauth_backups:
+    name: 2fauth_backups
+
+networks:
+  2fauth_network:
+    driver: bridge
