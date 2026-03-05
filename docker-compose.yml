@@ -25,9 +25,7 @@ services:
 
   # 2FAuth Backup Service
   backup:
-    build:
-      context: ./backup
-      dockerfile: Dockerfile
+    image: ghcr.io/tan-yong-sheng/2fauth-backup
     container_name: 2fauth-backup
     restart: unless-stopped
     environment:
@@ -35,7 +33,6 @@ services:
       - DB_DATABASE=${DB_DATABASE:-/2fauth/database.sqlite}
     env_file:
       - ./backup/.env
-
     volumes:
       - 2fauth_app_data:/2fauth
       - ./backup/rclone.conf:/config/rclone/rclone.conf:ro

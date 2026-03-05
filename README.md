@@ -1,6 +1,6 @@
 # 2FAuth Backup
 
-SQLite-focused backup/restore system for [2FAuth](https://github.com/Bubka/2FAuth), modeled after the workflow and structure of [shiori-backup](https://github.com/tan-yong-sheng/shiori-backup).
+SQLite-focused backup/restore system for [2FAuth](https://github.com/Bubka/2FAuth).
 
 ## Features
 
